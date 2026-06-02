@@ -1,23 +1,22 @@
 from pathlib import Path
 from typing import Tuple
+from src.config import ConfigManager
 
 
 class FolderStructure:
 
-    _DIR_NAMES: Tuple[str, ...] = ("cam", "char", "env", "light", "prop", "temp")
-
-    def __init__(self, output_path: str):
-        self.output_path = Path(output_path)
+    def __init__(self, context_path: Path = None):
+        self.output_path = context_path
+        self.config = ConfigManager()
+        self.folders_to_create = self.config.get("asset_folders")
         self.bootstrap_folders()
-
+        
     def bootstrap_folders(self) -> None:
         print("[INFO] Creating folders...")
-        for dir_name in self._DIR_NAMES:
-            full_path = self.output_path / dir_name
-            print(f"[DEBUG] Creating file: {full_path}")
-
+        for dir_name in self.folders_to_create:
+            full_path = (self.output_path / dir_name)
+            print(f"[DEBUG] Creating folder: {full_path}")
             full_path.mkdir(parents=True, exist_ok=True)
-
         print("[INFO] Folders created")
 
     def get_cam(self) -> str:
