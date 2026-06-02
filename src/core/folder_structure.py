@@ -4,7 +4,7 @@ from typing import Tuple
 
 class FolderStructure:
 
-    _DIR_NAMES: Tuple[str, ...] = ("cam", "char", "env", "ligh", "prop", "temp")
+    _DIR_NAMES: Tuple[str, ...] = ("cam", "char", "env", "light", "prop", "temp")
 
     def __init__(self, output_path: str):
         self.output_path = Path(output_path)
