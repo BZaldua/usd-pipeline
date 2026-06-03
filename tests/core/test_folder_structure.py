@@ -35,7 +35,7 @@ class TestFolderStructure(unittest.TestCase):
         self.assertEqual(fs.output_path, self.test_path)
         self.assertEqual(fs.folders_to_create, self.mock_folders)
         self.assertEqual(mock_mkdir.call_count, len(self.mock_folders))
-        
+
         expected_path = self.test_path / "cam_dir"
         mock_mkdir.assert_any_call(parents=True, exist_ok=True)
 
