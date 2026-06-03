@@ -23,6 +23,8 @@ def main():
     config_path = Path(args.config) if args.config else None
     config = ConfigManager(config_path)
 
+    FolderStructure(Path("./output"), config)
+
     log_config = config.get("logging")
     if log_config:
         logging.config.dictConfig(log_config)
@@ -32,6 +34,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    output_path = Path("./output")
-    FolderStructure(output_path)

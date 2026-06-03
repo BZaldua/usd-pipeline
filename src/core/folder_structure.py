@@ -1,18 +1,16 @@
 import logging
 from pathlib import Path
-from typing import Tuple
-
-from src.config import ConfigManager
+from typing import Tuple, Dict
 
 logger = logging.getLogger(__name__)
 
 
 class FolderStructure:
 
-    def __init__(self, context_path: Path = None):
+    def __init__(self, context_path: Path, config_manager: "ConfigManager"):
         self.output_path = context_path
-        self.config = ConfigManager()
-        self.folders_to_create = self.config.get("asset_folders")
+        self.config = config_manager
+        self.folders_to_create: Dict[str, str] = self.config.get("asset_folders")
         self.bootstrap_folders()
 
     def bootstrap_folders(self) -> None:
@@ -24,22 +22,22 @@ class FolderStructure:
         logger.info("Folders created")
 
     def get_cam(self) -> str:
-        return self.output_path / self.config.get("assets_folder.camera")
+        return self.output_path / self.folders_to_create.get("camera")
 
     def get_char(self) -> str:
-        return self.output_path / self.config.get("assets_folder.character")
+        return self.output_path / self.folders_to_create.get("character")
 
     def get_env(self) -> str:
-        return self.output_path / self.config.get("assets_folder.environment")
+        return self.output_path / self.folders_to_create.get("environment")
 
     def get_light(self) -> str:
-        return self.output_path / self.config.get("assets_folder.light")
+        return self.output_path / self.folders_to_create.get("light")
 
     def get_prop(self) -> str:
-        return self.output_path / self.config.get("assets_folder.props")
+        return self.output_path / self.folders_to_create.get("props")
 
     def get_temp(self) -> str:
-        return self.output_path / self.config.get("assets_folder.temps")
+        return self.output_path / self.folders_to_create.get("temp")
 
     def get_dir_names(self) -> Tuple:
         return self.folders_to_create
