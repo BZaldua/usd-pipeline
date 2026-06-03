@@ -27,7 +27,14 @@ class ConfigManager:
 
     def _load_yaml(self, config_path: Path) -> None:
         self._config_data = {
-            "asset_folders": ["cam", "char", "env", "light", "prop", "temp"]
+            "asset_folders": {
+                "camera": "cam",
+                "character": "char",
+                "environment": "env",
+                "light": "light",
+                "props": "prop",
+                "temp": "temp",
+            }
         }
 
         if not config_path.exists():
