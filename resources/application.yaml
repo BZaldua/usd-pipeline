@@ -1,0 +1,28 @@
+---
+metadata:
+  pipeline_version: "1.0.0"
+
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    datetimelevel:
+      format: "%(asctime)s [%(levelname)s] %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: datetimelevel
+  root:
+    level: DEBUG
+    handlers: [console]
+
+asset_folders:
+  camera: "cam"
+  character: "char"
+  environment: "env"
+  light: "light"
+  props: "prop"
+  temp: "temp"
+
