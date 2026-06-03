@@ -12,7 +12,7 @@ def main():
     
     parser.add_argument(
         "-c", "--config",
-        required=True,
+        required=False,
         type=str,
         help="Absolute path to config file"
     )
@@ -21,9 +21,6 @@ def main():
     args = parser.parse_args()
 
     config_path = Path(args.config) if args.config else None
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Config file not found at {config_path}")
-    
     config = ConfigManager(config_path)
 
     log_config = config.get("logging")
