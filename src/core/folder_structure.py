@@ -13,29 +13,29 @@ class FolderStructure:
         
     def bootstrap_folders(self) -> None:
         print("[INFO] Creating folders...")
-        for dir_name in self.folders_to_create:
+        for k, dir_name in self.folders_to_create.items():
             full_path = (self.output_path / dir_name)
-            print(f"[DEBUG] Creating folder: {full_path}")
+            print(f"[DEBUG] Creating for {k} folder: {full_path}")
             full_path.mkdir(parents=True, exist_ok=True)
         print("[INFO] Folders created")
 
     def get_cam(self) -> str:
-        return self.output_path / "cam"
+        return self.output_path / self.config.get("assets_folder.camera")
 
     def get_char(self) -> str:
-        return self.output_path / "char"
+        return self.output_path / self.config.get("assets_folder.character")
 
     def get_env(self) -> str:
-        return self.output_path / "env"
+        return self.output_path / self.config.get("assets_folder.environment")
 
     def get_light(self) -> str:
-        return self.output_path / "light"
+        return self.output_path / self.config.get("assets_folder.light")
 
     def get_prop(self) -> str:
-        return self.output_path / "prop"
+        return self.output_path / self.config.get("assets_folder.props")
 
     def get_temp(self) -> str:
-        return self.output_path / "temp"
+        return self.output_path / self.config.get("assets_folder.temps")
 
     def get_dir_names(self) -> Tuple:
-        return self._DIR_NAMES
+        return self.folders_to_create

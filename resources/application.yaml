@@ -3,10 +3,10 @@ metadata:
   pipeline_version: "1.0.0"
 
 asset_folders:
-  - "cam"
-  - "char"
-  - "env"
-  - "light"
-  - "prop"
-  - "temp"
+  camera: "cam"
+  character: "char"
+  environment: "env"
+  light: "light"
+  props: "prop"
+  temp: "temp"
 
