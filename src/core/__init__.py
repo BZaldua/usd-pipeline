@@ -1,1 +1,1 @@
-from .folder_structure import FolderStructure
+from .bootstrap import DepartmentConfig, ProjectBootstrap
