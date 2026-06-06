@@ -2,7 +2,7 @@ import argparse
 import logging
 import logging.config
 from pathlib import Path
-from src.core import ProjectBootstrap
+from src.core import ProjectBootstrap, UsdValidator
 from src.config import ConfigManager
 import sys
 
@@ -38,6 +38,13 @@ def main():
 
     bootstrap = ProjectBootstrap(PRODUCTION_ASSETS_DIR, config)
     bootstrap.run(NEW_ASSET_NAME)
+
+    validator = UsdValidator(config)
+    is_valid = validator.validate_asset(PRODUCTION_ASSETS_DIR, NEW_ASSET_NAME)
+    if is_valid:
+        logger.info("✅ Asset correctly formed")
+    else:
+        logger.error("❌ Asset is not valid")
 
 
 if __name__ == "__main__":
