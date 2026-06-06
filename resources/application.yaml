@@ -18,11 +18,17 @@ logging:
     level: DEBUG
     handlers: [console]
 
-asset_folders:
-  camera: "cam"
-  character: "char"
-  environment: "env"
-  light: "light"
-  props: "prop"
-  temp: "temp"
-
+pipeline:
+  departments:
+    model:
+      dir_name: "model"
+      file_suffix: "model"
+      scope_name: "geo"
+    look:
+      dir_name: "look"
+      file_suffix: "look"
+      scope_name: "ml"
+    # rig:
+    #   dir_name: "rig"
+    #   file_suffix: "rig"
+    #   scope_name: "rig"

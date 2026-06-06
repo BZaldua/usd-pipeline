@@ -14,17 +14,6 @@ class ConfigManager:
         self.reload()
 
     def reload(self) -> None:
-        self._config_data = {
-            "asset_folders": {
-                "camera": "cam",
-                "character": "char",
-                "environment": "env",
-                "light": "light",
-                "props": "prop",
-                "temp": "temp",
-            }
-        }
-
         if not self.config_path.exists():
             return
 
@@ -37,4 +26,17 @@ class ConfigManager:
             raise ValueError(f"Error reading config YAML: {e}")
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._config_data.get(key, default)
+        if "." not in key:
+            return self._config_data.get(key, default)
+
+        parts = key.split(".")
+        current_data = self._config_data
+
+        # Navegamos de forma segura a través de los subdiccionarios
+        for part in parts:
+            if isinstance(current_data, dict) and part in current_data:
+                current_data = current_data[part]
+            else:
+                return default
+
+        return current_data
