@@ -8,10 +8,11 @@ from pxr import Usd
 from src.config import ConfigManager
 from src.core import DepartmentConfig, ProjectBootstrap
 
-patch_usd_create = partial(patch, "src.core.bootstrap.Usd.Stage.CreateNew")
-patch_usd_open = partial(patch, "src.core.bootstrap.Usd.Stage.Open")
+MODULE_PATH = "src.core.bootstrap"
+patch_usd_create = partial(patch, f"{MODULE_PATH}.Usd.Stage.CreateNew")
+patch_usd_open = partial(patch, f"{MODULE_PATH}.Usd.Stage.Open")
 patch_usd_get_stage = partial(
-    patch, "src.core.bootstrap.ProjectBootstrap._get_or_create_stage"
+    patch, f"{MODULE_PATH}.ProjectBootstrap._get_or_create_stage"
 )
 
 
