@@ -12,14 +12,8 @@ Pygments==2.20.0
 PyQt6==6.11.0
 PyQt6-Qt6==6.11.1
 PyQt6_sip==13.11.1
-PySide6==6.11.1
-PySide6_Addons==6.11.1
-PySide6_Essentials==6.11.1
-pytest==9.0.3
-pytest-qt==4.5.0
 pytokens==0.4.1
 PyYAML==6.0.3
-shiboken6==6.11.1
 types-usd==24.5.2
 typing_extensions==4.15.0
 usd-core==26.5
