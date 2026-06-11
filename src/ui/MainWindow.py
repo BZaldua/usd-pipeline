@@ -1,16 +1,16 @@
-from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLineEdit, QPushButton, QTreeView, QTextEdit, QFileDialog, QLabel,
-    QHeaderView, QInputDialog
-)
 from PyQt6.QtCore import QDir
 from PyQt6.QtGui import QFileSystemModel
+from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QHeaderView,
+                             QInputDialog, QLabel, QLineEdit, QMainWindow,
+                             QPushButton, QTextEdit, QTreeView, QVBoxLayout,
+                             QWidget)
 
-from src.core import ProjectBootstrap
 from src.config import ConfigManager
+from src.core import ProjectBootstrap
+
 
 class MainWindow(QMainWindow):
-    
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Pipeline - Bootstrap & Validator")
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout(central_widget)
 
-        # --- TOP: ROOT DIR SELECTOR --- 
+        # --- TOP: ROOT DIR SELECTOR ---
         top_layout = QHBoxLayout()
 
         route_label = QLabel("Root dir:")
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         tree_view_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         tree_view_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
         self.tree_view.setColumnWidth(1, 120)
-        
+
         main_layout.addWidget(self.tree_view)
 
         # -- BOTTOM: CONSOLE --
@@ -105,8 +105,10 @@ class MainWindow(QMainWindow):
     def create_asset(self):
         if not self.root_dir:
             return
-        
-        asset_name, ok = QInputDialog.getText(self, "New asset", "Insert name of the asset to create")
+
+        asset_name, ok = QInputDialog.getText(
+            self, "New asset", "Insert name of the asset to create"
+        )
         if ok and asset_name.strip():
             bootstrap = ProjectBootstrap(self.root_dir, self.config)
             bootstrap.run(asset_name.strip())
