@@ -14,9 +14,12 @@ logging:
       class: logging.StreamHandler
       level: DEBUG
       formatter: datetimelevel
+    qt_console:
+      level: DEBUG
+      formatter: datetimelevel
   root:
     level: DEBUG
-    handlers: [console]
+    handlers: [console, qt_console]
 
 pipeline:
   departments:
