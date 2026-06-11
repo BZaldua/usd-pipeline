@@ -1,5 +1,8 @@
-from PyQt6.QtCore import QDir
-from PyQt6.QtGui import QFileSystemModel
+import logging
+from pathlib import Path
+
+from PyQt6.QtCore import QDir, QObject, pyqtSignal
+from PyQt6.QtGui import QFileSystemModel, QTextCursor
 from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QHeaderView,
                              QInputDialog, QLabel, QLineEdit, QMainWindow,
                              QPushButton, QTextEdit, QTreeView, QVBoxLayout,
@@ -22,7 +25,17 @@ class MainWindow(QMainWindow):
 
         self.config = ConfigManager()
 
+        self.setup_logging()
         self.init_ui()
+
+    def setup_logging(self):
+        self.qt_handler = self.config.setup_logging(QtSignalingHandler)
+        if self.qt_handler:
+            self.qt_handler.log_signal.connect(self.write_console)
+
+    def write_console(self, log):
+        self.logs_txt.append(log)
+        self.logs_txt.moveCursor(QTextCursor.MoveOperation.End)
 
     def init_ui(self):
         central_widget = QWidget()
@@ -85,12 +98,12 @@ class MainWindow(QMainWindow):
         # -- BOTTOM: CONSOLE --
         console_lbl = QLabel("Console")
 
-        logs_txt = QTextEdit()
-        logs_txt.setReadOnly(True)
-        logs_txt.setMaximumHeight(120)
+        self.logs_txt = QTextEdit()
+        self.logs_txt.setReadOnly(True)
+        self.logs_txt.setMaximumHeight(120)
 
         main_layout.addWidget(console_lbl)
-        main_layout.addWidget(logs_txt)
+        main_layout.addWidget(self.logs_txt)
 
     def browse_dir(self):
         dir = QFileDialog.getExistingDirectory(self, "Select root directory")
@@ -110,8 +123,21 @@ class MainWindow(QMainWindow):
             self, "New asset", "Insert name of the asset to create"
         )
         if ok and asset_name.strip():
-            bootstrap = ProjectBootstrap(self.root_dir, self.config)
+            root_dir_path = Path(self.root_dir).resolve()
+            bootstrap = ProjectBootstrap(root_dir_path, self.config)
             bootstrap.run(asset_name.strip())
 
     def validate(self):
         print("TODO")
+
+
+class QtSignalingHandler(logging.Handler, QObject):
+    log_signal = pyqtSignal(str)
+
+    def __init__(self):
+        logging.Handler.__init__(self)
+        QObject.__init__(self)
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.log_signal.emit(msg)
