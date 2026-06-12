@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication, QInputDialog
 
+from src.config import ConfigManager
 from src.ui import MainWindow, QtSignalingHandler
 
 app_qt = QApplication.instance() or QApplication([])
@@ -13,9 +14,8 @@ app_qt = QApplication.instance() or QApplication([])
 
 class TestMainWindow(unittest.TestCase):
 
-    @patch("src.ui.MainWindow.ConfigManager")
-    def setUp(self, mock_config_class):
-        self.mock_config = mock_config_class.return_value
+    def setUp(self):
+        self.mock_config = MagicMock(spec=ConfigManager)
         self.mock_handler = QtSignalingHandler()
         self.mock_config.setup_logging.return_value = self.mock_handler
 
