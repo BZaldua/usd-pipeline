@@ -31,3 +31,7 @@ pipeline:
       dir_name: "look"
       scope_name: "ml"
       format: "usda"
+    rig:
+      dir_name: "rig"
+      scope_name: "rig"
+      format: "usdc"
