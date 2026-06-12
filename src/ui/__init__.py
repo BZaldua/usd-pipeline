@@ -1,1 +1,1 @@
-from .MainWindow import MainWindow, QtSignalingHandler
+from .main_window import MainWindow, QtSignalingHandler

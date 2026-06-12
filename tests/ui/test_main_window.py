@@ -53,7 +53,7 @@ class TestMainWindow(unittest.TestCase):
         self.assertTrue(self.window.create_btn.isEnabled())
         self.assertTrue(self.window.validate_btn.isEnabled())
 
-    @patch("src.ui.MainWindow.ProjectBootstrap")
+    @patch("src.ui.main_window.ProjectBootstrap")
     def test_create_asset_success_triggers_bootstrap(self, mock_bootstrap_class):
         # Arrange
         self.window.root_dir = "/pipeline/projects/test_asset"
@@ -71,7 +71,7 @@ class TestMainWindow(unittest.TestCase):
             "character_concept"
         )
 
-    @patch("src.ui.MainWindow.ProjectBootstrap")
+    @patch("src.ui.main_window.ProjectBootstrap")
     def test_create_asset_empty_name_does_not_trigger_bootstrap(
         self, mock_bootstrap_class
     ):
