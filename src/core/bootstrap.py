@@ -120,12 +120,10 @@ class ProjectBootstrap:
         payload_layer = payload_stage.GetRootLayer()
         payload_layer.subLayerPaths.clear()
 
-        ordered_departments = ["look", "model"]
-        for dept_key in ordered_departments:
-            if dept_key in self.departments:
-                config = self.departments[dept_key]
-                relative_path = f"./layers/{config.folder_name}/{paths[f'{dept_key}_file'].name}"
-                payload_layer.subLayerPaths.append(relative_path)
+        for dept_key in self.departments.keys():
+            config = self.departments[dept_key]
+            relative_path = f"./layers/{config.folder_name}/{paths[f'{dept_key}_file'].name}"
+            payload_layer.subLayerPaths.append(relative_path)
 
         if not payload_stage.GetPrimAtPath(root_prim_path):
             payload_prim = payload_stage.OverridePrim(root_prim_path)
