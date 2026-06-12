@@ -1,125 +1,123 @@
+import os
+import shutil
+import tempfile
 import unittest
-from functools import partial
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-from pxr import Usd
+from pxr import Kind, Sdf, Usd, UsdGeom
 
-from src.config import ConfigManager
-from src.core import DepartmentConfig, ProjectBootstrap
-
-patch_usd_create = partial(patch, "src.core.bootstrap.Usd.Stage.CreateNew")
-patch_usd_open = partial(patch, "src.core.bootstrap.Usd.Stage.Open")
-patch_usd_get_stage = partial(
-    patch, "src.core.bootstrap.ProjectBootstrap._get_or_create_stage"
-)
+from src.core import ProjectBootstrap
 
 
 class TestProjectBootstrap(unittest.TestCase):
 
-    def setUp(self) -> None:
-        self.mock_config = MagicMock(spec=ConfigManager)
-        self.root_dir = Path("/tmp/mock_pipeline")
-        self.asset_name = "test_asset"
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root_dir = Path(self.temp_dir.name)
 
-        self.mock_yaml_data = {
-            "model": {"dir_name": "model", "file_suffix": "model", "scope_name": "geo"},
-            "look": {"dir_name": "look", "file_suffix": "look", "scope_name": "mtl"},
+        self.mock_config = MagicMock()
+        self.mock_config.get.return_value = {
+            "model": {"dir_name": "model", "scope_name": "geo", "format": "usdc"},
+            "look": {"dir_name": "look", "scope_name": "mtl", "format": "usda"},
+            "rig": {"dir_name": "rig", "scope_name": "rig", "format": "usdc"},
         }
 
-    def test_load_departments_with_valid_config(self) -> None:
-        # Arrange
-        self.mock_config.get.return_value = self.mock_yaml_data
+        self.bootstrap = ProjectBootstrap(
+            root_dir=self.root_dir, config=self.mock_config
+        )
+        self.asset_name = "test_asset"
 
-        # Act
-        bootstrap = ProjectBootstrap(root_dir=self.root_dir, config=self.mock_config)
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
-        # Assert
-        self.assertIn("model", bootstrap.departments)
-        self.assertIn("look", bootstrap.departments)
+    def test_load_departments(self):
+        self.assertIn("model", self.bootstrap.departments)
+        self.assertIn("look", self.bootstrap.departments)
 
-        model_config = bootstrap.departments["model"]
-        self.assertIsInstance(model_config, DepartmentConfig)
+        model_config = self.bootstrap.departments["model"]
         self.assertEqual(model_config.folder_name, "model")
         self.assertEqual(model_config.scope_name, "geo")
+        self.assertEqual(model_config.internal_format, "usdc")
 
-    def test_resolve_asset_paths(self) -> None:
-        # Arrange
-        self.mock_config.get.return_value = self.mock_yaml_data
-        bootstrap = ProjectBootstrap(root_dir=self.root_dir, config=self.mock_config)
-
+    def test_resolve_asset_paths(self):
         # Act
-        paths = bootstrap.resolve_asset_paths(self.asset_name)
+        paths = self.bootstrap.resolve_asset_paths(self.asset_name, version=3)
 
         # Assert
-        expected_asset_dir = self.root_dir / self.asset_name
-        self.assertEqual(paths["asset_dir"], expected_asset_dir)
+        expected_root = self.root_dir / self.asset_name
+        self.assertEqual(paths["asset_dir"], expected_root)
+        self.assertEqual(paths["root_file"], expected_root / f"{self.asset_name}.usd")
         self.assertEqual(
-            paths["root_file"], expected_asset_dir / f"{self.asset_name}.usda"
+            paths["payload_file"], expected_root / f"{self.asset_name}_payload.usd"
         )
 
-        self.assertEqual(paths["model_dir"], expected_asset_dir / "model")
-        self.assertEqual(
-            paths["model_file"], expected_asset_dir / "model" / "model.usda"
+        expected_versioned_file = (
+            expected_root / "layers" / "model" / f"{self.asset_name}_model_v003.usdc"
         )
+        self.assertEqual(paths["model_versioned_file"], expected_versioned_file)
 
-    @patch.object(Path, "mkdir")
-    @patch.object(Path, "exists")
-    def test_create_directories_only_when_missing(
-        self, mock_exists: MagicMock, mock_mkdir: MagicMock
-    ) -> None:
+    def test_create_directories(self):
         # Arrange
-        self.mock_config.get.return_value = self.mock_yaml_data
-        bootstrap = ProjectBootstrap(root_dir=self.root_dir, config=self.mock_config)
-
-        mock_exists.side_effect = lambda: mock_exists.call_count == 1
+        paths = self.bootstrap.resolve_asset_paths(self.asset_name, version=1)
 
         # Act
-        paths = bootstrap.resolve_asset_paths(self.asset_name)
-        bootstrap.create_directories(paths)
+        self.bootstrap.create_directories(paths)
 
         # Assert
-        self.assertTrue(mock_mkdir.called)
+        self.assertTrue(paths["asset_dir"].exists())
+        self.assertTrue(paths["layers_dir"].exists())
+        self.assertTrue(paths["model_dir"].exists())
+        self.assertTrue(paths["look_dir"].exists())
 
-    @patch_usd_create()
-    @patch_usd_open()
-    @patch.object(Path, "exists")
-    def test_get_or_create_stage_behavior(
-        self, mock_exists: MagicMock, mock_open: MagicMock, mock_create_new: MagicMock
-    ) -> None:
+    def test_get_or_create_stage_format(self):
         # Arrange
-        self.mock_config.get.return_value = self.mock_yaml_data
-        bootstrap = ProjectBootstrap(root_dir=self.root_dir, config=self.mock_config)
-
-        test_file = Path("/dummy/scene.usda")
-
-        mock_exists.return_value = False
+        test_file = self.root_dir / "test_format.usd"
 
         # Act
-        bootstrap._get_or_create_stage(test_file)
+        stage = self.bootstrap._get_or_create_stage(test_file, internal_format="usdc")
+        layer = stage.GetRootLayer()
 
         # Assert
-        mock_create_new.assert_called_once_with(str(test_file))
-        mock_exists.return_value = True
-        bootstrap._get_or_create_stage(test_file)
-        mock_open.assert_called_once_with(str(test_file))
+        file_args = layer.GetFileFormatArguments()
+        self.assertEqual(file_args.get("format"), "usdc")
 
-    @patch_usd_get_stage()
-    @patch.object(ProjectBootstrap, "create_directories")
-    def test_run_orchestrator_skips_if_prim_exists(
-        self, mock_create_dirs: MagicMock, mock_get_stage: MagicMock
-    ) -> None:
+    def test_run_generates_valid_usd_structure(self):
         # Arrange
-        self.mock_config.get.return_value = self.mock_yaml_data
-        bootstrap = ProjectBootstrap(root_dir=self.root_dir, config=self.mock_config)
-
-        mock_stage = MagicMock(spec=Usd.Stage)
-        mock_stage.GetPrimAtPath.return_value = True
-        mock_get_stage.return_value = mock_stage
+        version = 1
 
         # Act
-        bootstrap.run(self.asset_name)
+        self.bootstrap.run(self.asset_name, version=version)
+        paths = self.bootstrap.resolve_asset_paths(self.asset_name, version=version)
 
         # Assert
-        mock_create_dirs.assert_called_once()
-        self.assertFalse(mock_stage.GetRootLayer().Save.called)
+        self.assertTrue(paths["root_file"].exists())
+        self.assertTrue(paths["payload_file"].exists())
+        self.assertTrue(paths["model_file"].exists())
+        self.assertTrue(paths["model_versioned_file"].exists())
+
+        root_stage = Usd.Stage.Open(str(paths["root_file"]))
+        root_prim = root_stage.GetPrimAtPath(f"/{self.asset_name}")
+
+        self.assertTrue(root_prim.IsValid())
+        self.assertEqual(root_prim.GetTypeName(), "Xform")
+
+        self.assertEqual(Usd.ModelAPI(root_prim).GetKind(), Kind.Tokens.component)
+
+        self.assertEqual(root_stage.GetDefaultPrim(), root_prim)
+
+        payload_stage = Usd.Stage.Open(str(paths["payload_file"]))
+        payload_layer = payload_stage.GetRootLayer()
+
+        expected_sublayers = [
+            f"./layers/model/{paths['model_file'].name}",
+            f"./layers/look/{paths['look_file'].name}",
+            f"./layers/rig/{paths['rig_file'].name}",
+        ]
+        self.assertEqual(list(payload_layer.subLayerPaths), expected_sublayers)
+
+        model_stage = Usd.Stage.Open(str(paths["model_versioned_file"]))
+        scope_prim = model_stage.GetPrimAtPath(f"/{self.asset_name}/geo")
+
+        self.assertTrue(scope_prim.IsValid())
+        self.assertEqual(scope_prim.GetTypeName(), "Scope")
