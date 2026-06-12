@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
             self, "New asset", "Insert name of the asset to create"
         )
         if ok and asset_name.strip():
-            root_dir_path = Path(self.root_dir).resolve()
+            root_dir_path = self.root_dir
             bootstrap = ProjectBootstrap(root_dir_path, self.config)
             bootstrap.run(asset_name.strip())
 

@@ -1,5 +1,4 @@
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from PyQt6.QtCore import Qt
@@ -65,8 +64,9 @@ class TestMainWindow(unittest.TestCase):
         QTest.mouseClick(self.window.create_btn, Qt.MouseButton.LeftButton)
 
         # Assert
-        expected_path = Path(self.window.root_dir).resolve()
-        mock_bootstrap_class.assert_called_once_with(expected_path, self.window.config)
+        mock_bootstrap_class.assert_called_once_with(
+            self.window.root_dir, self.window.config
+        )
         mock_bootstrap_class.return_value.run.assert_called_once_with(
             "character_concept"
         )
