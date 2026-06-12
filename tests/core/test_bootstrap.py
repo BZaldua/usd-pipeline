@@ -1,11 +1,9 @@
-import os
-import shutil
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from pxr import Kind, Sdf, Usd, UsdGeom
+from pxr import Kind, Usd
 
 from src.core import ProjectBootstrap
 

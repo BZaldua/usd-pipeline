@@ -62,7 +62,7 @@ class ProjectBootstrap:
         for dir_path in dir_paths.values():
             if not dir_path.exists():
                 dir_path.mkdir(parents=True, exist_ok=True)
-                logger.debug(f"Directorio creado: {dir_path}")
+                logger.debug(f"Directory successfully created: {dir_path}")
 
     @staticmethod
     def _get_or_create_stage(file_path: Path, internal_format: str = None) -> Usd.Stage:
@@ -158,4 +158,6 @@ class ProjectBootstrap:
                 assetPath=f"./{paths['payload_file'].name}", primPath=root_prim_path
             )
             root_stage.GetRootLayer().Save()
-            logger.info(f"Bootstrap process finished for: '{asset_name}' v({version})")
+            logger.info(
+                f"Bootstrap processed finished successfully for: '{asset_name}' v({version})"
+            )
