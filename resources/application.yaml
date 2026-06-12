@@ -14,21 +14,24 @@ logging:
       class: logging.StreamHandler
       level: DEBUG
       formatter: datetimelevel
+    qt_console:
+      level: DEBUG
+      formatter: datetimelevel
   root:
     level: DEBUG
-    handlers: [console]
+    handlers: [console, qt_console]
 
 pipeline:
   departments:
     model:
       dir_name: "model"
-      file_suffix: "model"
       scope_name: "geo"
+      format: "usdc"
     look:
       dir_name: "look"
-      file_suffix: "look"
       scope_name: "ml"
-    # rig:
-    #   dir_name: "rig"
-    #   file_suffix: "rig"
-    #   scope_name: "rig"
+      format: "usda"
+    rig:
+      dir_name: "rig"
+      scope_name: "rig"
+      format: "usdc"
