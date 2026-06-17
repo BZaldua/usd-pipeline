@@ -135,23 +135,7 @@ class MainWindow(QMainWindow):
             return
 
         root_dir_path = Path(self.root_dir).resolve()
-        if not root_dir_path.exists() or not root_dir_path.is_dir():
-            logger.error(f"Root dir is not a valid directory: '{self.root_dir}'")
-            return False
-
-        asset_dirs = [
-            x
-            for x in root_dir_path.iterdir()
-            if x.is_dir() and not x.name.startswith(".")
-        ]
-        if not asset_dirs:
-            logger.warning("No subdirectories to validate found")
-            return True
-
-        for asset_dir in asset_dirs:
-            self.validator.validate_asset(self.root_dir, asset_dir.name)
-
-        return True
+        self.validator.validate_dir_assets(root_dir_path)
 
 
 class QtSignalingHandler(logging.Handler, QObject):

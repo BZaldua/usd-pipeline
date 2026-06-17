@@ -87,6 +87,18 @@ class TestMainWindow(unittest.TestCase):
         # Assert
         mock_bootstrap_class.assert_not_called()
 
+    @patch("src.ui.main_window.UsdValidator")
+    def test_validate_asset_triggers_validator(self, mock_validator_class):
+        # Arrange
+        self.window.root_dir = "/pipeline/projects/test_asset"
+        self.window.validate_btn.setEnabled(True)
+
+        # Act
+        QTest.mouseClick(self.window.validate_btn, Qt.MouseButton.LeftButton)
+
+        # Assert
+        mock_validator_class.asset_called_once_with(self.window.root_dir)
+
     def test_write_console_appends_text_to_ui(self):
         # Arrange
         log_message = "[INFO] Asset structure loaded successfully."

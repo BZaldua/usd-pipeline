@@ -19,6 +19,25 @@ class UsdValidator:
             r"^([a-zA-Z0-9_]+)_([a-zA-Z0-9]+)_v(\d{3,4})\.(usdc|usda|usd)$"
         )
 
+    def validate_dir_assets(self, root_dir: Path) -> bool:
+        if not root_dir.exists() or not root_dir.is_dir():
+            logger.error(f"Root dir is not a valid directory: '{root_dir}'")
+            return False
+
+        asset_dirs = [
+            x for x in root_dir.iterdir() if x.is_dir() and not x.name.startswith(".")
+        ]
+        if not asset_dirs:
+            logger.warning("No subdirectories to validate found")
+            return True
+
+        for asset_dir in asset_dirs:
+            is_valid = self.validate_asset(root_dir, asset_dir.name)
+            if not is_valid:
+                return False
+
+        return True
+
     def validate_asset(self, root_dir: Path, asset_name: str) -> bool:
         self._errors.clear()
 
@@ -111,7 +130,7 @@ class UsdValidator:
                 latest_file = file_path
 
         return latest_file
-    
+
     def _validate_department_layer(
         self, file_path: Path, root_prim_path: str, department: str, scope: str
     ) -> None:
@@ -162,9 +181,7 @@ class UsdValidator:
             self._errors.append(f"[Model] Topological analysis error: {e}")
 
     def _validate_payload(
-        self,
-        file_path: Path,
-        departments: Dict[str, Dict[str, str]]
+        self, file_path: Path, departments: Dict[str, Dict[str, str]]
     ) -> None:
         if not file_path.exists():
             self._errors.append(f"Payload file not found: {file_path.name}")

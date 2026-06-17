@@ -159,13 +159,8 @@ class TestUsdValidator(unittest.TestCase):
             "shading": {"dir_name": "shading_dir"},
         }
 
-        resolved_files = {
-            "model": Path("/root/layers/model_dir/assetA_model_v001.usdc"),
-            "shading": Path("/root/layers/shading_dir/assetA_shading_v001.usda"),
-        }
-
         # Act
-        self.validator._validate_payload(mock_file_path, departments, resolved_files)
+        self.validator._validate_payload(mock_file_path, departments)
 
         # Assert
         self.assertTrue(
@@ -257,3 +252,120 @@ class TestUsdValidator(unittest.TestCase):
         # Assert
         self.assertTrue(result)
         self.assertEqual(len(self.validator._errors), 0)
+
+    @patch("pathlib.Path.exists")
+    @patch("pathlib.Path.is_dir")
+    def test_validate_dir_assets_invalid_root(self, mock_is_dir, mock_exists):
+        # Arrange
+        mock_root = Path("/invalid/path")
+        mock_exists.return_value = False
+        mock_is_dir.return_value = False
+
+        # Act
+        result = self.validator.validate_dir_assets(mock_root)
+
+        # Assert
+        self.assertFalse(result)
+
+    @patch("pathlib.Path.iterdir")
+    @patch("pathlib.Path.is_dir")
+    @patch("pathlib.Path.exists")
+    def test_validate_dir_assets_empty_root(
+        self, mock_exists, mock_is_dir, mock_iterdir
+    ):
+        # Arrange
+        mock_root = MagicMock(spec=Path)
+        mock_root.exists.return_value = True
+        mock_root.is_dir.return_value = True
+        mock_iterdir.return_value = []  # No hay subcarpetas
+
+        # Act
+        result = self.validator.validate_dir_assets(mock_root)
+
+        # Assert
+        self.assertTrue(result)
+
+    @patch("pathlib.Path.iterdir")
+    @patch("pathlib.Path.is_dir")
+    @patch("pathlib.Path.exists")
+    def test_validate_dir_assets_ignores_hidden_folders(
+        self, mock_exists, mock_is_dir, mock_iterdir
+    ):
+        # Arrange
+        mock_root = MagicMock(spec=Path)
+        mock_root.exists.return_value = True
+        mock_root.is_dir.return_value = True
+
+        # Simulamos que encuentra una carpeta oculta y archivos sueltos
+        mock_hidden_dir = MagicMock(spec=Path)
+        mock_hidden_dir.is_dir.return_value = True
+        mock_hidden_dir.name = ".git"
+
+        mock_iterdir.return_value = [mock_hidden_dir]
+
+        # Act
+        result = self.validator.validate_dir_assets(mock_root)
+
+        # Assert
+        self.assertTrue(result)
+
+    @patch("pathlib.Path.exists")
+    def test_validate_dir_assets_all_valid(self, mock_exists):
+        # Arrange
+        mock_exists.return_value = True
+
+        mock_root = MagicMock(spec=Path)
+        mock_root.exists.return_value = True
+        mock_root.is_dir.return_value = True
+
+        mock_asset_a = MagicMock(spec=Path)
+        mock_asset_a.is_dir.return_value = True
+        mock_asset_a.name = "chair"
+
+        mock_asset_b = MagicMock(spec=Path)
+        mock_asset_b.is_dir.return_value = True
+        mock_asset_b.name = "table"
+
+        mock_root.iterdir.return_value = [mock_asset_a, mock_asset_b]
+
+        with patch.object(
+            self.validator, "validate_asset", return_value=True
+        ) as mock_validate_asset:
+            # Act
+            result = self.validator.validate_dir_assets(mock_root)
+
+            # Assert
+            self.assertTrue(result)
+            self.assertEqual(mock_validate_asset.call_count, 2)
+            mock_validate_asset.assert_any_call(mock_root, "chair")
+            mock_validate_asset.assert_any_call(mock_root, "table")
+
+    @patch("pathlib.Path.exists")
+    def test_validate_dir_assets_stops_on_first_error(self, mock_exists):
+        # Arrange
+        mock_exists.return_value = True
+
+        mock_root = MagicMock(spec=Path)
+        mock_root.exists.return_value = True
+        mock_root.is_dir.return_value = True
+
+        mock_asset_a = MagicMock(spec=Path)
+        mock_asset_a.is_dir.return_value = True
+        mock_asset_a.name = "broken_asset"
+
+        mock_asset_b = MagicMock(spec=Path)
+        mock_asset_b.is_dir.return_value = True
+        mock_asset_b.name = "good_asset"
+
+        mock_root.iterdir.return_value = [mock_asset_a, mock_asset_b]
+
+        with patch.object(self.validator, "validate_asset") as mock_validate_asset:
+            mock_validate_asset.return_value = False
+
+            # Act
+            result = self.validator.validate_dir_assets(mock_root)
+
+            # Assert
+            self.assertFalse(result)
+            self.assertEqual(mock_validate_asset.call_count, 1)
+            mock_validate_asset.assert_called_once_with(mock_root, "broken_asset")
