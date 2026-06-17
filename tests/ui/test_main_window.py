@@ -22,6 +22,7 @@ class TestMainWindow(unittest.TestCase):
 
         self.original_get_existing_directory = MainWindow.browse_dir
         self.original_get_text = QInputDialog.getText
+        self.root_dir = "/pipeline/projects/test_asset"
 
     def tearDown(self):
         self.window.close()
@@ -35,7 +36,7 @@ class TestMainWindow(unittest.TestCase):
     @patch("PyQt6.QtWidgets.QFileDialog.getExistingDirectory")
     def test_browse_dir_updates_ui_and_enables_buttons(self, mock_get_dir):
         # Arrange
-        mock_path = "/pipeline/projects/test_asset"
+        mock_path = self.root_dir
         mock_get_dir.return_value = mock_path
 
         QTest.mouseClick(
@@ -55,7 +56,7 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.ui.main_window.ProjectBootstrap")
     def test_create_asset_success_triggers_bootstrap(self, mock_bootstrap_class):
         # Arrange
-        self.window.root_dir = "/pipeline/projects/test_asset"
+        self.window.root_dir = self.root_dir
         self.window.create_btn.setEnabled(True)
 
         QInputDialog.getText = MagicMock(return_value=("character_concept", True))
@@ -76,7 +77,7 @@ class TestMainWindow(unittest.TestCase):
         self, mock_bootstrap_class
     ):
         # Arrange
-        self.window.root_dir = "/pipeline/projects/test_asset"
+        self.window.root_dir = self.root_dir
         self.window.create_btn.setEnabled(True)
 
         QInputDialog.getText = MagicMock(return_value=("   ", True))
@@ -90,7 +91,7 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.ui.main_window.UsdValidator")
     def test_validate_asset_triggers_validator(self, mock_validator_class):
         # Arrange
-        self.window.root_dir = "/pipeline/projects/test_asset"
+        self.window.root_dir = self.root_dir
         self.window.validate_btn.setEnabled(True)
 
         # Act

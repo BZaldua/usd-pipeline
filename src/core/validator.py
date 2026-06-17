@@ -16,7 +16,7 @@ class UsdValidator:
         self._warnings: List[str] = []
         self._default_root_ext = "usd"
         self._version_pattern = re.compile(
-            r"^([a-zA-Z0-9_]+)_([a-zA-Z0-9]+)_v(\d{3,4})\.(usdc|usda|usd)$"
+            r"^(\w+)_([a-zA-Z0-9]+)_v(\d{3,4})\.(usdc|usda|usd)$"
         )
 
     def validate_dir_assets(self, root_dir: Path) -> bool:
@@ -120,7 +120,7 @@ class UsdValidator:
                 )
                 continue
 
-            file_asset, file_type, version_str, file_ext = match.groups()
+            file_asset, file_type, version_str, _ = match.groups()
             if file_asset != asset_name or file_type != department_type:
                 continue
 
