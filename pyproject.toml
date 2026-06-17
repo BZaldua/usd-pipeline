@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "usd-pipeline-core"
+version = "1.0.0"
+description = "OpenUSD bootstrap and validator pipeline"
+readme = "README.md"
+authors = [{ name = "BZaldua", email = "bzalduad@github.com" }]
+requires-python = ">=3.10"
+
+dependencies = [
+    "PyYAML==6.0.3",
+    "usd-core==26.5",
+    "PyQt6==6.11.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==26.5.1",
+    "isort==8.0.1",
+    "click==8.4.1",
+    "colorama==0.4.6",
+    "iniconfig==2.3.0",
+    "mypy_extensions==1.1.0",
+    "packaging==26.2",
+    "pathspec==1.1.1",
+    "platformdirs==4.10.0",
+    "pluggy==1.6.0",
+    "Pygments==2.20.0",
+    "types-usd==24.5.2",
+    "typing_extensions==4.15.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
