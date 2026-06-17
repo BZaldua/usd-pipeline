@@ -148,19 +148,20 @@ class TestUsdValidator(unittest.TestCase):
         # Arrange
         mock_file_path = MagicMock(spec=Path)
         mock_file_path.exists.return_value = True
-        mock_file_path.name = "assetA_payload.usda"
+        mock_file_path.name = "assetA_payload.usd"
 
         mock_layer = MagicMock()
-        mock_layer.subLayerPaths = ["./layers/shading_dir/assetA_shading_v001.usd"]
+        mock_layer.subLayerPaths = ["./layers/shading_dir/shading.usd"]
         mock_find_or_open.return_value = mock_layer
 
         departments = {
             "model": {"dir_name": "model_dir"},
             "shading": {"dir_name": "shading_dir"},
         }
+
         resolved_files = {
-            "model": Path("/root/layers/model_dir/assetA_model_v001.usd"),
-            "shading": Path("/root/layers/shading_dir/assetA_shading_v001.usd"),
+            "model": Path("/root/layers/model_dir/assetA_model_v001.usdc"),
+            "shading": Path("/root/layers/shading_dir/assetA_shading_v001.usda"),
         }
 
         # Act
@@ -169,10 +170,11 @@ class TestUsdValidator(unittest.TestCase):
         # Assert
         self.assertTrue(
             any(
-                "[Payload] The assembly file is not calling correct version of model"
+                "[Payload] The assembly file is not calling the master layer of model"
                 in err
                 for err in self.validator._errors
-            )
+            ),
+            msg="Should fail, master layer 'model' missing",
         )
 
     @patch("pxr.Kind.Tokens")

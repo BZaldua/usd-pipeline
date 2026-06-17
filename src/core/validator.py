@@ -170,25 +170,22 @@ class UsdValidator:
         if not file_path.exists():
             self._errors.append(f"Payload file not found: {file_path.name}")
             return
-
         try:
             layer = Sdf.Layer.FindOrOpen(str(file_path))
             sublayers = layer.subLayerPaths
 
+            normalized_sublayers = [p.replace("\\", "/") for p in sublayers]
+
             for department, data in departments.items():
                 dir_name = data.get("dir_name", department)
 
-                if department in resolved_files:
-                    actual_file_name = resolved_files[department].name
-                    expected_sublayer = f"./layers/{dir_name}/{actual_file_name}"
+                expected_master_name = f"{dir_name}.usd"
+                expected_sublayer = f"./layers/{dir_name}/{expected_master_name}"
+                normalized_expected = expected_sublayer.replace("\\", "/")
 
-                    if expected_sublayer not in sublayers:
-                        self._errors.append(
-                            f"[Payload] The assembly file is not calling correct version of {department}. Expected to find: '{expected_sublayer}'"
-                        )
-                else:
+                if normalized_expected not in normalized_sublayers:
                     self._errors.append(
-                        f"[Payload] Unable to verify sublayer of '{department}' because file does not exist"
+                        f"[Payload] The assembly file is not calling the master layer of {department}. Expected to find: '{expected_sublayer}'"
                     )
         except Exception as e:
             self._errors.append(f"Internal error: payload reading error: {e}")
