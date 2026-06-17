@@ -19,40 +19,6 @@ class UsdValidator:
             r"^([a-zA-Z0-9_]+)_([a-zA-Z0-9]+)_v(\d{3,4})\.(usdc|usda|usd)$"
         )
 
-    def _find_latest_department_version(
-        self, dept_dir: Path, asset_name: str, department_type: str
-    ) -> Optional[Path]:
-        if not dept_dir.exists():
-            return None
-
-        highest_version = -1
-        latest_file: Optional[Path] = None
-
-        for file_path in dept_dir.iterdir():
-            if file_path.is_dir():
-                continue
-
-            if file_path.name.startswith("."):
-                continue
-
-            match = self._version_pattern.match(file_path.name)
-            if not match:
-                self._warnings.append(
-                    f"[{department_type}] File with unsupported name/format: '{file_path.name}'. Delete if not required."
-                )
-                continue
-
-            file_asset, file_type, version_str, file_ext = match.groups()
-            if file_asset != asset_name or file_type != department_type:
-                continue
-
-            version_num = int(version_str)
-            if version_num > highest_version:
-                highest_version = version_num
-                latest_file = file_path
-
-        return latest_file
-
     def validate_asset(self, root_dir: Path, asset_name: str) -> bool:
         self._errors.clear()
 
@@ -95,7 +61,7 @@ class UsdValidator:
                 self._validate_model_structure(dept_file, root_prim_path)
 
         payload_file = asset_dir / f"{asset_name}_payload.{self._default_root_ext}"
-        self._validate_payload(payload_file, departments, resolved_dept_files)
+        self._validate_payload(payload_file, departments)
 
         root_file = asset_dir / f"{asset_name}.{self._default_root_ext}"
         self._validate_root(root_file, root_prim_path)
@@ -112,6 +78,40 @@ class UsdValidator:
         logger.info(f"Asset '{asset_name}' is OK")
         return True
 
+    def _find_latest_department_version(
+        self, dept_dir: Path, asset_name: str, department_type: str
+    ) -> Optional[Path]:
+        if not dept_dir.exists():
+            return None
+
+        highest_version = -1
+        latest_file: Optional[Path] = None
+
+        for file_path in dept_dir.iterdir():
+            if file_path.is_dir():
+                continue
+
+            if file_path.name.startswith("."):
+                continue
+
+            match = self._version_pattern.match(file_path.name)
+            if not match:
+                self._warnings.append(
+                    f"[{department_type}] File with unsupported name/format: '{file_path.name}'. Delete if not required."
+                )
+                continue
+
+            file_asset, file_type, version_str, file_ext = match.groups()
+            if file_asset != asset_name or file_type != department_type:
+                continue
+
+            version_num = int(version_str)
+            if version_num > highest_version:
+                highest_version = version_num
+                latest_file = file_path
+
+        return latest_file
+    
     def _validate_department_layer(
         self, file_path: Path, root_prim_path: str, department: str, scope: str
     ) -> None:
@@ -164,8 +164,7 @@ class UsdValidator:
     def _validate_payload(
         self,
         file_path: Path,
-        departments: Dict[str, Dict[str, str]],
-        resolved_files: Dict[str, Path],
+        departments: Dict[str, Dict[str, str]]
     ) -> None:
         if not file_path.exists():
             self._errors.append(f"Payload file not found: {file_path.name}")
