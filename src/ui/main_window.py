@@ -9,7 +9,9 @@ from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QHeaderView,
                              QWidget)
 
 from src.config import ConfigManager
-from src.core import ProjectBootstrap
+from src.core import ProjectBootstrap, UsdValidator
+
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
@@ -24,6 +26,7 @@ class MainWindow(QMainWindow):
         self.model.setFilter(QDir.Filter.AllEntries | QDir.Filter.NoDotAndDotDot)
 
         self.config = ConfigManager()
+        self.validator = UsdValidator(self.config)
 
         self.setup_logging()
         self.init_ui()
@@ -128,7 +131,11 @@ class MainWindow(QMainWindow):
             bootstrap.run(asset_name.strip())
 
     def validate(self):
-        print("TODO")
+        if not self.root_dir:
+            return
+
+        root_dir_path = Path(self.root_dir).resolve()
+        self.validator.validate_dir_assets(root_dir_path)
 
 
 class QtSignalingHandler(logging.Handler, QObject):
