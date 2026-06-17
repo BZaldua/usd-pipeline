@@ -14,7 +14,7 @@ class UsdValidator:
         self.config = config
         self._errors: List[str] = []
         self._warnings: List[str] = []
-        self._default_root_ext = "usda"
+        self._default_root_ext = "usd"
         self._version_pattern = re.compile(
             r"^([a-zA-Z0-9_]+)_([a-zA-Z0-9]+)_v(\d{3,4})\.(usdc|usda|usd)$"
         )
@@ -106,7 +106,7 @@ class UsdValidator:
         if self._errors:
             logger.error(f"Asset '{asset_name}' is INVALID. Errors:")
             for error in self._errors:
-                logger.error(f"\t\t{error}")
+                logger.error(f"\t{error}")
             return False
 
         logger.info(f"Asset '{asset_name}' is OK")
