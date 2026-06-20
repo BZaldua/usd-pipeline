@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 from pxr import Kind, Usd
 
-from src.core import ProjectBootstrap
+from usd_pipeline_core.core import ProjectBootstrap
 
 
 class TestProjectBootstrap(unittest.TestCase):

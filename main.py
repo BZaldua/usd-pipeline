@@ -1,5 +1,5 @@
 import sys
-from src.ui import MainWindow
+from usd_pipeline_core.ui import MainWindow
 from PyQt6.QtWidgets import QApplication
 
 if __name__ == "__main__":

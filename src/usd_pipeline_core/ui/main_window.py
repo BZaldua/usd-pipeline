@@ -8,8 +8,8 @@ from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QHeaderView,
                              QPushButton, QTextEdit, QTreeView, QVBoxLayout,
                              QWidget)
 
-from src.config import ConfigManager
-from src.core import ProjectBootstrap, UsdValidator
+from usd_pipeline_core.config import ConfigManager
+from usd_pipeline_core.core import ProjectBootstrap, UsdValidator
 
 logger = logging.getLogger(__name__)
 

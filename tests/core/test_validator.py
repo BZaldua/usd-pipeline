@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from src.core import UsdValidator
+from usd_pipeline_core.core import UsdValidator
 
 
 class TestUsdValidator(unittest.TestCase):
@@ -212,7 +212,7 @@ class TestUsdValidator(unittest.TestCase):
         mock_primvars_api.HasPrimvar.return_value = False
         mock_primvars_api_cls.return_value = mock_primvars_api
 
-        with self.assertLogs("src", level="WARNING") as log_capture:
+        with self.assertLogs("usd_pipeline_core", level="WARNING") as log_capture:
             # Act
             self.validator._validate_stage_content(Path("/fake/root.usda"))
 

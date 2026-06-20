@@ -227,9 +227,7 @@ class UsdValidator:
             for prim in stage.Traverse():
                 if prim.IsA(UsdGeom.Mesh):
                     primvars_api = UsdGeom.PrimvarsAPI(prim)
-                    if not primvars_api.HasPrimvar(
-                        "st"
-                    ) and not primvars_api.HasPrimvar("uv"):
+                    if not primvars_api.HasPrimvar("st") and not primvars_api.HasPrimvar("uv"):
                         logger.warning(
                             f"[Content - UV] {prim.GetPath()} does not contain texture coordinates"
                         )

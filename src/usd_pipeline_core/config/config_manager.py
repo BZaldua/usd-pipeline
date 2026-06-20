@@ -10,7 +10,7 @@ class ConfigManager:
 
     def __init__(self, config_path: Path = None):
         self.config_path = config_path or (
-            Path(__file__).parent.parent.parent / "resources" / "application.yaml"
+            Path(__file__).parent.parent / "resources" / "application.yaml"
         )
         self._config_data: Dict[str, Any] = {}
         self.reload()

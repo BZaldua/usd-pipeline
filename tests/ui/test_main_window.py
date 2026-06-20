@@ -5,8 +5,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
 from PyQt6.QtWidgets import QApplication, QInputDialog
 
-from src.config import ConfigManager
-from src.ui import MainWindow, QtSignalingHandler
+from usd_pipeline_core.config import ConfigManager
+from usd_pipeline_core.ui import MainWindow, QtSignalingHandler
 
 app_qt = QApplication.instance() or QApplication([])
 
@@ -53,7 +53,7 @@ class TestMainWindow(unittest.TestCase):
         self.assertTrue(self.window.create_btn.isEnabled())
         self.assertTrue(self.window.validate_btn.isEnabled())
 
-    @patch("src.ui.main_window.ProjectBootstrap")
+    @patch("usd_pipeline_core.ui.main_window.ProjectBootstrap")
     def test_create_asset_success_triggers_bootstrap(self, mock_bootstrap_class):
         # Arrange
         self.window.root_dir = self.root_dir
@@ -72,7 +72,7 @@ class TestMainWindow(unittest.TestCase):
             "character_concept"
         )
 
-    @patch("src.ui.main_window.ProjectBootstrap")
+    @patch("usd_pipeline_core.ui.main_window.ProjectBootstrap")
     def test_create_asset_empty_name_does_not_trigger_bootstrap(
         self, mock_bootstrap_class
     ):
@@ -88,7 +88,7 @@ class TestMainWindow(unittest.TestCase):
         # Assert
         mock_bootstrap_class.assert_not_called()
 
-    @patch("src.ui.main_window.UsdValidator")
+    @patch("usd_pipeline_core.ui.main_window.UsdValidator")
     def test_validate_asset_triggers_validator(self, mock_validator_class):
         # Arrange
         self.window.root_dir = self.root_dir
